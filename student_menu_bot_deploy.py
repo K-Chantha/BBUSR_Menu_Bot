@@ -13,11 +13,12 @@ import os
 import logging
 from telegram import (
     ReplyKeyboardMarkup,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
     Update,
     KeyboardButton,
     BotCommand,
-    MenuButtonWebApp,
-    WebAppInfo,
+    MenuButtonCommands,
 )
 from telegram.ext import (
     ApplicationBuilder,
@@ -46,8 +47,8 @@ PORT = int(os.environ.get("PORT", 10000))
 # 2) សារស្វាគមន៍ដែលបង្ហាញនៅពេលចាប់ផ្តើម Bot (ដូចសារភ្ជាប់ Pin ក្នុងរូបគំរូ)
 # ==========================================================
 WELCOME_MESSAGE = (
-    "📌 សិស្សានុសិស្សដែលទទួលបានការប្រឡងបញ្ចប់ការសិក្សា\n\n"
-    "សូមចុចប៊ូតុងខាងក្រោម ឬវាយសរសេរសំណួររបស់អ្នកផ្ទាល់ 👇"
+    "📌 សូមស្វាគមន៍មកកាន់ BBUSR Academic News\n\n"
+    "សូមចុចប៊ូតុងខាងក្រោម ឬវាយ /menu ឬ /start 👇"
 )
 
 # ==========================================================
@@ -133,9 +134,12 @@ MENU = {
 }
 
 # សារនៅពេលមិនអាចយល់សំណួរដែលគេវាយចូល (ដូចក្នុងរូបគំរូ)
+CONTACT_BOT_URL = "https://t.me/BBU_SR_Chat_Bot"
+
 FALLBACK_MESSAGE = (
     "សូមអភ័យទោស សំណួរនេះមិនមានក្នុង Menu ខាងក្រោមទេ។\n\n"
-    "សូមជ្រើសរើសក្នុង Menu ខាងក្រោម ឬអាចសាកសួរជាមួយ https://t.me/BBU_SR_Chat_Bot"
+    "សូមជ្រើសរើសក្នុង Menu ខាងក្រោម ឬអាចសាកសួរជាមួយ "
+    f"[BBU_SR_Chat_Bot]({CONTACT_BOT_URL})"
 )
 
 
@@ -154,18 +158,33 @@ def build_keyboard() -> ReplyKeyboardMarkup:
     )
 
 
+# ប៊ូតុងតំណភ្ជាប់ទៅកាន់ Bot ព័ត៌មានបន្ថែម (URL button — ចុចហើយបើកទៅ Bot ផ្សេងភ្លាមៗ)
+# ចំណាំ៖ Chat Menu Button (icon ខាងឆ្វេងបំផុតជិតអក្សរញញឹម) មិនអាចកំណត់ឱ្យបើក
+# តំណភ្ជាប់ t.me ដោយផ្ទាល់បានទេ (Telegram បដិសេធ WebApp លើ Domain t.me ខ្លួនឯង
+# ហើយវិលត្រឡប់ទៅបង្ហាញ Commands ដូចដើមវិញ) ដូច្នេះប្រើប៊ូតុងភ្ជាប់ក្នុងសារវិញ
+# ជាដំណោះស្រាយដែលដំណើរការជាក់ស្តែង 100%
+INFO_BUTTON = InlineKeyboardMarkup(
+    [[InlineKeyboardButton("ℹ️ ព័ត៌មានបន្ថែម", url=CONTACT_BOT_URL)]]
+)
+
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ពេលអ្នកប្រើវាយ /start (ឬចុច Start ដំបូងគេ) — បង្ហាញ Menu ភ្លាមៗ"""
+    """ពេលអ្នកប្រើវាយ /start (ឬចុច Start ដំបូងគេ) — បង្ហាញ Menu ភ្លាមៗ
+    ព្រមទាំងប៊ូតុងតំណភ្ជាប់ 'ព័ត៌មានបន្ថែម' ភ្ជាប់ជាមួយសារនេះ"""
     await update.message.reply_text(
         WELCOME_MESSAGE,
         reply_markup=build_keyboard(),
+    )
+    await update.message.reply_text(
+        "ត្រូវការជំនួយបន្ថែម?",
+        reply_markup=INFO_BUTTON,
     )
 
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """ដោះស្រាយសារគ្រប់សារដែលអ្នកប្រើវាយចូល៖
     - បើត្រូវនឹងចំណងជើងណាមួយក្នុង Menu → ឆ្លើយតបចម្លើយនោះ
-    - បើមិនត្រូវ → ឆ្លើយសារ fallback
+    - បើមិនត្រូវ → ឆ្លើយសារ fallback ជាមួយតំណភ្ជាប់ទៅ Bot ព័ត៌មានបន្ថែម
     """
     text = update.message.text.strip()
 
@@ -179,23 +198,20 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text(
             FALLBACK_MESSAGE,
+            parse_mode="Markdown",
             reply_markup=build_keyboard(),
         )
 
 
 async def post_init(application):
-    """រត់ម្តងគត់ពេល Bot ចាប់ផ្តើម៖ កំណត់ប៊ូតុង Chat Menu ខាងឆ្វេងបំផុត
-    (ជិតអក្សរញញឹម) ឱ្យបង្ហាញអក្សរ 'ព័ត៌មានបន្ថែម' ហើយពេលចុច នឹងបើក Telegram Bot BBU_SR_Chat_Bot"""
+    """រត់ម្តងគត់ពេល Bot ចាប់ផ្តើម៖ កំណត់ Chat Menu Button ខាងឆ្វេងបំផុត
+    (ជិតអក្សរញញឹម) ឱ្យបង្ហាញបញ្ជីពាក្យបញ្ជា — ចំណែកប៊ូតុង 'ព័ត៌មានបន្ថែម'
+    ភ្ជាប់ទៅ Bot BBU_SR_Chat_Bot ត្រូវប្រើ INFO_BUTTON ជាមួយសារវិញ (មើលខាងលើ)"""
     await application.bot.set_my_commands([
         BotCommand("start", "ចាប់ផ្តើម Bot / បង្ហាញ Menu"),
         BotCommand("menu", "បង្ហាញ Menu"),
     ])
-    await application.bot.set_chat_menu_button(
-        menu_button=MenuButtonWebApp(
-            text="ព័ត៌មានបន្ថែម",
-            web_app=WebAppInfo(url="https://t.me/BBU_SR_Chat_Bot"),
-        )
-    )
+    await application.bot.set_chat_menu_button(menu_button=MenuButtonCommands())
 
 
 def main():
