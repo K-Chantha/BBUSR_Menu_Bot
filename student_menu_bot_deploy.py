@@ -16,7 +16,8 @@ from telegram import (
     Update,
     KeyboardButton,
     BotCommand,
-    MenuButtonDefault,
+    MenuButtonWebApp,
+    WebAppInfo,
     LinkPreviewOptions,
 )
 from telegram.ext import (
@@ -203,13 +204,20 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def post_init(application):
-    """រត់ម្តងគត់ពេល Bot ចាប់ផ្តើម៖ លុប Chat Menu Button ចេញ (ត្រឡប់ទៅលំនាំដើម
-    របស់ Telegram វិញ — គ្មានប៊ូតុងពិសេសខាងឆ្វេងបំផុតទៀតទេ)"""
+    """រត់ម្តងគត់ពេល Bot ចាប់ផ្តើម៖ កំណត់ Chat Menu Button ខាងឆ្វេងបំផុត
+    (ជិតអក្សរញញឹម) ឱ្យបង្ហាញអក្សរ 'ព័ត៌មានបន្ថែម' ហើយពេលចុច នឹងបើកគេហទំព័រ
+    bbusr.info (ជា Web Page ធម្មតា ដូច្នេះដំណើរការបាន — ខុសពី t.me ដែល
+    Telegram បដិសេធមិនអោយប្រើជា WebApp)"""
     await application.bot.set_my_commands([
         BotCommand("start", "ចាប់ផ្តើម Bot / បង្ហាញ Menu"),
         BotCommand("menu", "បង្ហាញ Menu"),
     ])
-    await application.bot.set_chat_menu_button(menu_button=MenuButtonDefault())
+    await application.bot.set_chat_menu_button(
+        menu_button=MenuButtonWebApp(
+            text="ព័ត៌មានបន្ថែម",
+            web_app=WebAppInfo(url="https://bbusr.info"),
+        )
+    )
 
 
 def main():
