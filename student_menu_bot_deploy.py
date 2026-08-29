@@ -13,8 +13,6 @@ import os
 import logging
 from telegram import (
     ReplyKeyboardMarkup,
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
     Update,
     KeyboardButton,
     BotCommand,
@@ -137,9 +135,10 @@ MENU = {
 CONTACT_BOT_URL = "https://t.me/BBU_SR_Chat_Bot"
 
 FALLBACK_MESSAGE = (
-    "សូមអភ័យទោស សំណួរនេះមិនមានក្នុង Menu ខាងក្រោមទេ។\n\n"
-    "សូមជ្រើសរើសក្នុង Menu ខាងក្រោម ឬអាចសាកសួរជាមួយ "
+    "សូមអភ័យទោស ខ្ញុំមិនអាចឆ្លើយសំណួរបានទេ។\n\n"
+    "សូមសួរសំណួរជាមួយ "
     f"[BBU_SR_Chat_Bot]({CONTACT_BOT_URL})"
+    " វិញ។"
 )
 
 
@@ -158,33 +157,18 @@ def build_keyboard() -> ReplyKeyboardMarkup:
     )
 
 
-# ប៊ូតុងតំណភ្ជាប់ទៅកាន់ Bot ព័ត៌មានបន្ថែម (URL button — ចុចហើយបើកទៅ Bot ផ្សេងភ្លាមៗ)
-# ចំណាំ៖ Chat Menu Button (icon ខាងឆ្វេងបំផុតជិតអក្សរញញឹម) មិនអាចកំណត់ឱ្យបើក
-# តំណភ្ជាប់ t.me ដោយផ្ទាល់បានទេ (Telegram បដិសេធ WebApp លើ Domain t.me ខ្លួនឯង
-# ហើយវិលត្រឡប់ទៅបង្ហាញ Commands ដូចដើមវិញ) ដូច្នេះប្រើប៊ូតុងភ្ជាប់ក្នុងសារវិញ
-# ជាដំណោះស្រាយដែលដំណើរការជាក់ស្តែង 100%
-INFO_BUTTON = InlineKeyboardMarkup(
-    [[InlineKeyboardButton("ℹ️ ព័ត៌មានបន្ថែម", url=CONTACT_BOT_URL)]]
-)
-
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ពេលអ្នកប្រើវាយ /start (ឬចុច Start ដំបូងគេ) — បង្ហាញ Menu ភ្លាមៗ
-    ព្រមទាំងប៊ូតុងតំណភ្ជាប់ 'ព័ត៌មានបន្ថែម' ភ្ជាប់ជាមួយសារនេះ"""
+    """ពេលអ្នកប្រើវាយ /start (ឬចុច Start ដំបូងគេ) — បង្ហាញ Menu ភ្លាមៗ"""
     await update.message.reply_text(
         WELCOME_MESSAGE,
         reply_markup=build_keyboard(),
-    )
-    await update.message.reply_text(
-        "ត្រូវការជំនួយបន្ថែម?",
-        reply_markup=INFO_BUTTON,
     )
 
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """ដោះស្រាយសារគ្រប់សារដែលអ្នកប្រើវាយចូល៖
     - បើត្រូវនឹងចំណងជើងណាមួយក្នុង Menu → ឆ្លើយតបចម្លើយនោះ
-    - បើមិនត្រូវ → ឆ្លើយសារ fallback ជាមួយតំណភ្ជាប់ទៅ Bot ព័ត៌មានបន្ថែម
+    - បើមិនត្រូវ → ឆ្លើយសារ fallback ជាមួយតំណភ្ជាប់ទៅ Bot ជំនួយបន្ថែម
     """
     text = update.message.text.strip()
 
@@ -205,8 +189,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def post_init(application):
     """រត់ម្តងគត់ពេល Bot ចាប់ផ្តើម៖ កំណត់ Chat Menu Button ខាងឆ្វេងបំផុត
-    (ជិតអក្សរញញឹម) ឱ្យបង្ហាញបញ្ជីពាក្យបញ្ជា — ចំណែកប៊ូតុង 'ព័ត៌មានបន្ថែម'
-    ភ្ជាប់ទៅ Bot BBU_SR_Chat_Bot ត្រូវប្រើ INFO_BUTTON ជាមួយសារវិញ (មើលខាងលើ)"""
+    (ជិតអក្សរញញឹម) ឱ្យបង្ហាញបញ្ជីពាក្យបញ្ជាធម្មតា"""
     await application.bot.set_my_commands([
         BotCommand("start", "ចាប់ផ្តើម Bot / បង្ហាញ Menu"),
         BotCommand("menu", "បង្ហាញ Menu"),
