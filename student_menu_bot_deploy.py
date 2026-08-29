@@ -17,6 +17,7 @@ from telegram import (
     KeyboardButton,
     BotCommand,
     MenuButtonDefault,
+    LinkPreviewOptions,
 )
 from telegram.ext import (
     ApplicationBuilder,
@@ -189,12 +190,14 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             answer,
             parse_mode="Markdown",
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
             reply_markup=build_keyboard(),
         )
     else:
         await update.message.reply_text(
             FALLBACK_MESSAGE,
             parse_mode="Markdown",
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
             reply_markup=build_keyboard(),
         )
 
