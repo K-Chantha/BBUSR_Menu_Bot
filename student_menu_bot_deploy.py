@@ -16,7 +16,7 @@ from telegram import (
     Update,
     KeyboardButton,
     BotCommand,
-    MenuButtonCommands,
+    MenuButtonDefault,
 )
 from telegram.ext import (
     ApplicationBuilder,
@@ -188,13 +188,13 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def post_init(application):
-    """រត់ម្តងគត់ពេល Bot ចាប់ផ្តើម៖ កំណត់ Chat Menu Button ខាងឆ្វេងបំផុត
-    (ជិតអក្សរញញឹម) ឱ្យបង្ហាញបញ្ជីពាក្យបញ្ជាធម្មតា"""
+    """រត់ម្តងគត់ពេល Bot ចាប់ផ្តើម៖ លុប Chat Menu Button ចេញ (ត្រឡប់ទៅលំនាំដើម
+    របស់ Telegram វិញ — គ្មានប៊ូតុងពិសេសខាងឆ្វេងបំផុតទៀតទេ)"""
     await application.bot.set_my_commands([
         BotCommand("start", "ចាប់ផ្តើម Bot / បង្ហាញ Menu"),
         BotCommand("menu", "បង្ហាញ Menu"),
     ])
-    await application.bot.set_chat_menu_button(menu_button=MenuButtonCommands())
+    await application.bot.set_chat_menu_button(menu_button=MenuButtonDefault())
 
 
 def main():
